@@ -1181,7 +1181,7 @@ const App = () => {
     }, [currentPage, fetchItems]);
 
     useEffect(() => {
-        const ws = new WebSocket(`ws://${API_URL.split('//')[1]}`);
+        const ws = new WebSocket(`wss://${API_URL.split('//')[1]}`);
         setSocket(ws);
 
         ws.onmessage = () => {
