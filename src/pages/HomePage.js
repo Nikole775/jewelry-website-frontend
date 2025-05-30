@@ -412,7 +412,7 @@ const HomePage = ({
 
     const handleDownloadVideo = async (productId, videoName) => {
         try {
-            const response = await fetch(`http://localhost:4000/api/products/${productId}/video/download`);
+            const response = await fetch(`https://jewelry-website-backend-mt8c.onrender.com/api/products/${productId}/video/download`);
             if (response.ok) {
                 const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);
@@ -515,7 +515,7 @@ const HomePage = ({
                                 <video
                                     controls
                                     width="100%"
-                                    src={`http://localhost:4000/api/products/${item.id}/video`}
+                                    src={`https://jewelry-website-backend-mt8c.onrender.com/api/products/${item.id}/video`}
                                     style={{ borderRadius: "8px" }}
                                 />
                                 <button
