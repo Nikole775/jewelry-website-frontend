@@ -262,7 +262,8 @@ const App = () => {
 
             {!isOnline && (
                 <div style={{ backgroundColor: "red", color: "white", padding: "0.5rem", textAlign: "center" }}>
-                    You are currently offline. Some features may not be available.
+                    You are currently offline. Some features m
+                    ay not be available.
                 </div>
             )}
 
@@ -1102,7 +1103,7 @@ import CategoryManager from "../pages/CategoryManager.js";
 import LoginPage from "../pages/LogIn.js"; // import login page
 import "../App.css";
 
-const API_URL = "http://localhost:4000";
+const API_URL = "https://jewelry-website-backend-mt8c.onrender.com";
 
 const App = () => {
     const [items, setItems] = useState([]);
