@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const BACKEND_URL = 'https://jewelry-website-backend-mt8c.onrender.com/api/auth';
 
-function TwoFactorLoginForm() {
+function TwoFactorLoginForm({ onLoginSuccess }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [step, setStep] = useState(1);
@@ -32,8 +32,7 @@ function TwoFactorLoginForm() {
             localStorage.setItem('token', res.data.token); // optional
             localStorage.setItem('username', username);
             alert("Login successful!");
-            // Redirect to home or dashboard
-            window.location.href = '/dashboard'; // adjust path as needed
+            onLoginSuccess();
         } catch (error) {
             console.error(error);
             alert("Invalid verification code.");
