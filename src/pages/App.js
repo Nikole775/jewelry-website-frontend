@@ -1100,7 +1100,7 @@ import HomePage from "../pages/HomePage.js";
 import YourPage from "../pages/YourPage.js";
 import Charts from "../pages/Charts.js";
 import CategoryManager from "../pages/CategoryManager.js";
-import LoginPage from "../pages/LogIn.js"; // import login page
+import TwoFactorLoginForm from "../pages/2factorAuth.js"; // import login page
 import "../App.css";
 
 const API_URL = "https://jewelry-website-backend-mt8c.onrender.com";
@@ -1328,7 +1328,7 @@ const App = () => {
     };
 
     if (!isLoggedIn) {
-        return <LoginPage onLoginSuccess={handleLoginSuccess} />;
+        return <TwoFactorLoginForm onLoginSuccess={handleLoginSuccess} />;
     }
 
     return (
