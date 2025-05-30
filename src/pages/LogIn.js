@@ -12,7 +12,7 @@ export default function LoginPage({ onLoginSuccess }) {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post('http://localhost:4000/api/auth/login', { email, password });
+            const res = await axios.post('https://jewelry-website-backend-mt8c.onrender.com/api/auth/login', { email, password });
             localStorage.setItem('token', res.data.token);
             //navigate('/');
             onLoginSuccess();
