@@ -4,38 +4,66 @@ import axios from 'axios';
 const BACKEND_URL = 'https://jewelry-website-backend-mt8c.onrender.com/api/auth';
 
 function TwoFactorLoginForm({ onLoginSuccess }) {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [step, setStep] = useState(1);
     const [code, setCode] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
 
     const handleLogin = async () => {
+        setIsLoading(true);
+        setError('');
         try {
+            console.log('Attempting login with:', { email, password });
             const res = await axios.post(`${BACKEND_URL}/login`, {
-                email: username,
-                password
+                email: email.trim(),
+                password: password.trim()
+            },{
+                 headers: {
+                    'Content-Type': 'application/json'
+                }
             });
-            alert("Verification code sent to your email.");
-            setStep(2);
+
+            console.log('Login response:', res.data); 
+            if (res.data.success) {
+                alert("Verification code sent to your email.");
+                setStep(2);
+            } else {
+                setError(res.data.error || "Login failed");
+            }
         } catch (error) {
-            console.error(error);
-            alert("Login failed. Please check your credentials.");
+            console.error('Login error:', {
+                response: error.response?.data,
+                status: error.response?.status
+            });
+            
+            setError(
+                error.response?.data?.error || 
+                error.response?.data?.message || 
+                "Login failed. Please check your credentials."
+            );
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const handleVerifyCode = async () => {
+        setIsLoading(true);
         try {
             const res = await axios.post(`${BACKEND_URL}/verify-code`, {
-                username,
-                code
+                email,
+                cod
             });
             localStorage.setItem('token', res.data.token); // optional
-            localStorage.setItem('username', username);
+            localStorage.setItem('email', email);
             alert("Login successful!");
             onLoginSuccess();
         } catch (error) {
-            console.error(error);
-            alert("Invalid verification code.");
+            console.error('Verification error:', error.response?.data);
+            alert(error.response?.data?.error || "Invalid verification code.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -45,10 +73,10 @@ function TwoFactorLoginForm({ onLoginSuccess }) {
                 <>
                     <h2>Login</h2>
                     <input
-                        type="text"
+                        type="email"
                         placeholder="Email"
-                        value={username}
-                        onChange={e => setUsername(e.target.value)}
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
                         style={{ display: 'block', margin: '1rem 0', width: '100%' }}
                     />
                     <input
@@ -66,7 +94,7 @@ function TwoFactorLoginForm({ onLoginSuccess }) {
                     <input
                         type="text"
                         placeholder="Enter code"
-                        value={code}
+                        value={cod}
                         onChange={e => setCode(e.target.value)}
                         style={{ display: 'block', margin: '1rem 0', width: '100%' }}
                     />
