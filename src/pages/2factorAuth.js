@@ -12,41 +12,25 @@ function TwoFactorLoginForm({ onLoginSuccess }) {
     const [error, setError] = useState('');
 
     const handleLogin = async () => {
-        setIsLoading(true);
-        setError('');
-        try {
-            console.log('Attempting login with:', { email, password });
-            const res = await axios.post(`${BACKEND_URL}/login`, {
-                email: email.trim(),
-                password: password.trim()
-            },{
-                 headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+    try {
+        const res = await axios.post(`${BACKEND_URL}/login`, {
+            email: username,
+            password
+        });
 
-            console.log('Login response:', res.data); 
-            if (res.data.success) {
-                alert("Verification code sent to your email.");
-                setStep(2);
-            } else {
-                setError(res.data.error || "Login failed");
-            }
-        } catch (error) {
-            console.error('Login error:', {
-                response: error.response?.data,
-                status: error.response?.status
-            });
-            
-            setError(
-                error.response?.data?.error || 
-                error.response?.data?.message || 
-                "Login failed. Please check your credentials."
-            );
-        } finally {
-            setIsLoading(false);
+        if (res.data.success) {
+            // Store email for verification step
+            localStorage.setItem('pendingVerificationEmail', username);
+            alert("Verification code sent to your email.");
+            setStep(2); // Transition to code verification
+        } else {
+            alert(res.data.error || "Login failed");
         }
-    };
+    } catch (error) {
+        console.error('Login error:', error.response?.data);
+        alert(error.response?.data?.error || "Login failed");
+    }
+};
 
     const handleVerifyCode = async () => {
         setIsLoading(true);
