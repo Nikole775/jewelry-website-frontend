@@ -12,7 +12,7 @@ function TwoFactorLoginForm({ onLoginSuccess }) {
     const handleLogin = async () => {
         try {
             const res = await axios.post(`${BACKEND_URL}/login`, {
-                username,
+                email: username,
                 password
             });
             alert("Verification code sent to your email.");
