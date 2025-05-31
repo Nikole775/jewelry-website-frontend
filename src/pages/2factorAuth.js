@@ -7,7 +7,7 @@ function TwoFactorLoginForm({ onLoginSuccess }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [step, setStep] = useState(1);
-    const [code, setCode] = useState('');
+    const [cod, setCod] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -95,7 +95,7 @@ function TwoFactorLoginForm({ onLoginSuccess }) {
                         type="text"
                         placeholder="Enter code"
                         value={cod}
-                        onChange={e => setCode(e.target.value)}
+                        onChange={e => setCod(e.target.value)}
                         style={{ display: 'block', margin: '1rem 0', width: '100%' }}
                     />
                     <button onClick={handleVerifyCode}>Verify</button>
