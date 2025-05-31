@@ -6,6 +6,8 @@ const BACKEND_URL = 'https://jewelry-website-backend-mt8c.onrender.com/api/auth'
 function TwoFactorLoginForm({ onLoginSuccess }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [step, setStep] = useState(1);
+    const [cod, setCod] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
@@ -33,16 +35,9 @@ function TwoFactorLoginForm({ onLoginSuccess }) {
 
             console.log('Login response:', res.data);
             
-            // If we have a token, login was successful
-            if (res.data.token) {
-                localStorage.setItem('token', res.data.token);
-                localStorage.setItem('email', email);
-                setSuccessMessage("Login successful!");
-                
-                // Short delay to show success message before redirecting
-                setTimeout(() => {
-                    onLoginSuccess();
-                }, 1000);
+            if (res.data.success) {
+                setSuccessMessage("Verification code has been sent to your email!");
+                setStep(2);
             } else {
                 setError("Login failed");
             }
@@ -62,6 +57,38 @@ function TwoFactorLoginForm({ onLoginSuccess }) {
         }
     };
 
+    const handleVerifyCode = async () => {
+        if (!cod) {
+            setError('Please enter the verification code');
+            return;
+        }
+
+        setIsLoading(true);
+        setError('');
+        try {
+            const res = await axios.post(`${BACKEND_URL}/verify-code`, {
+                email,
+                cod
+            });
+
+            if (res.data.token) {
+                localStorage.setItem('token', res.data.token);
+                localStorage.setItem('email', email);
+                setSuccessMessage("Login successful!");
+                setTimeout(() => {
+                    onLoginSuccess();
+                }, 1000);
+            } else {
+                setError("Verification failed");
+            }
+        } catch (error) {
+            console.error('Verification error:', error.response?.data);
+            setError(error.response?.data?.error || "Invalid verification code");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <div style={styles.container}>
             <div style={styles.formCard}>
@@ -71,30 +98,65 @@ function TwoFactorLoginForm({ onLoginSuccess }) {
                 {/* Success Message */}
                 {successMessage && <div style={styles.successMessage}>{successMessage}</div>}
 
-                <h2 style={styles.title}>Login</h2>
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    style={styles.input}
-                    disabled={isLoading}
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    style={styles.input}
-                    disabled={isLoading}
-                />
-                <button 
-                    onClick={handleLogin} 
-                    style={styles.button}
-                    disabled={isLoading}
-                >
-                    {isLoading ? 'Logging in...' : 'Login'}
-                </button>
+                {step === 1 ? (
+                    <>
+                        <h2 style={styles.title}>Login</h2>
+                        <input
+                            type="email"
+                            placeholder="Email"
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
+                            style={styles.input}
+                            disabled={isLoading}
+                        />
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            style={styles.input}
+                            disabled={isLoading}
+                        />
+                        <button 
+                            onClick={handleLogin} 
+                            style={styles.button}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? 'Sending...' : 'Send Code'}
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        <h2 style={styles.title}>Enter Verification Code</h2>
+                        <p style={styles.subtitle}>Please check your email for the verification code</p>
+                        <input
+                            type="text"
+                            placeholder="Enter code"
+                            value={cod}
+                            onChange={e => setCod(e.target.value)}
+                            style={styles.input}
+                            disabled={isLoading}
+                        />
+                        <button 
+                            onClick={handleVerifyCode} 
+                            style={styles.button}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? 'Verifying...' : 'Verify'}
+                        </button>
+                        <button 
+                            onClick={() => {
+                                setStep(1);
+                                setCod('');
+                                setError('');
+                                setSuccessMessage('');
+                            }} 
+                            style={styles.backButton}
+                        >
+                            Back to Login
+                        </button>
+                    </>
+                )}
             </div>
         </div>
     );
@@ -122,6 +184,12 @@ const styles = {
         marginBottom: '1.5rem',
         color: '#333'
     },
+    subtitle: {
+        textAlign: 'center',
+        marginBottom: '1rem',
+        color: '#666',
+        fontSize: '0.9rem'
+    },
     input: {
         display: 'block',
         width: '100%',
@@ -142,6 +210,18 @@ const styles = {
         fontSize: '1rem',
         cursor: 'pointer',
         marginBottom: '0.5rem'
+    },
+    backButton: {
+        display: 'block',
+        width: '100%',
+        padding: '0.75rem',
+        backgroundColor: 'transparent',
+        color: '#666',
+        border: '1px solid #ddd',
+        borderRadius: '4px',
+        fontSize: '1rem',
+        cursor: 'pointer',
+        marginTop: '1rem'
     },
     errorMessage: {
         backgroundColor: '#ffebee',
