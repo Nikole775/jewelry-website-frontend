@@ -11,26 +11,36 @@ function TwoFactorLoginForm({ onLoginSuccess }) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const handleLogin = async () => {
-    try {
-        const res = await axios.post(`${BACKEND_URL}/login`, {
-            email: username,
-            password
-        });
-
-        if (res.data.success) {
-            // Store email for verification step
-            localStorage.setItem('pendingVerificationEmail', username);
-            alert("Verification code sent to your email.");
-            setStep(2); // Transition to code verification
-        } else {
-            alert(res.data.error || "Login failed");
-        }
-    } catch (error) {
-        console.error('Login error:', error.response?.data);
-        alert(error.response?.data?.error || "Login failed");
+    export async function login(req, res) {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(400).json({ error: 'email and password required',
+                                    received: req.body});
     }
-};
+
+    try {
+        const user = await userModel.findByEmail(email);
+        if (!user) {
+            console.log('Login attempt for non-existent email:', email);
+            return res.status(401).json({ error: 'Invalid credentials' ,
+                                        suggestion: 'No user found with this email'});
+        }
+        if (password !== user.passwordHash) {
+            console.log('Password mismatch for user:', email);
+            return res.status(401).json({ error: 'Invalid credentials',
+                                        suggestion: 'Check your password'});
+        }
+
+        const cod = Math.floor(100000 + Math.random()* 900000).toString();
+        await sendVerificationEmail(user.email, cod);
+        
+        const token = jwt.sign({ id: user.id, roleId: user.roleId }, JWT_SECRET, { expiresIn: '1h' });
+        res.json({ token });
+    } catch (err) {
+        console.error('Login error:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
 
     const handleVerifyCode = async () => {
         setIsLoading(true);
