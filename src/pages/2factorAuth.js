@@ -33,12 +33,14 @@ function TwoFactorLoginForm({ onLoginSuccess }) {
                 }
             });
 
-            console.log('Login response:', res.data); 
-            if (res.data.success) {
+            console.log('Login response:', res.data);
+            
+            // Check if we received a token (successful login)
+            if (res.data.token) {
                 setSuccessMessage("Verification code has been sent to your email!");
                 setStep(2);
             } else {
-                setError(res.data.error || "Login failed");
+                setError("Login failed");
             }
         } catch (error) {
             console.error('Login error:', {
