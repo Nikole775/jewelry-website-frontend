@@ -16,11 +16,11 @@ function TwoFactorLoginForm({ onLoginSuccess }) {
         setError('');
         try {
             console.log('Attempting login with:', { email, password });
-            const res = await axios.post(${BACKEND_URL}/login, {
+            const res = await axios.post(`${BACKEND_URL}/login`, {
                 email: email.trim(),
                 password: password.trim()
-            },{
-                 headers: {
+            }, {
+                headers: {
                     'Content-Type': 'application/json'
                 }
             });
@@ -45,17 +45,17 @@ function TwoFactorLoginForm({ onLoginSuccess }) {
             );
         } finally {
             setIsLoading(false);
-        }
-    };
+        }
+    };
 
     const handleVerifyCode = async () => {
         setIsLoading(true);
         try {
-            const res = await axios.post(${BACKEND_URL}/verify-code, {
+            const res = await axios.post(`${BACKEND_URL}/verify-code`, {
                 email,
                 cod
             });
-            localStorage.setItem('token', res.data.token); // optional
+            localStorage.setItem('token', res.data.token);
             localStorage.setItem('email', email);
             alert("Login successful!");
             onLoginSuccess();
